@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
+from skimage.transform import resize
 
 
 def get_image_rgb(origin_image):
@@ -141,7 +142,12 @@ def main():
     image_r, image_g, image_b = divide_image_rpg(image_rgb)
     image_fusion = fusion_image_rgb(image_r, image_g, image_b)
 
-    plt.imshow(image_fusion)
+    print(image_rgb.shape)
+
+    res = resize(image_rgb, (100, 100))
+    print(res.shape)
+
+    plt.imshow(res)
     plt.show()
 
 
