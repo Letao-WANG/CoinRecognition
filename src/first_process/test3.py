@@ -50,7 +50,7 @@ def addSquare(t1):
         for c in range(0,len(tcopy)) :
             if doisRefaire:
                 break
-            booleen = True
+            booleen = False
             y1 =tcopy[c][1]
             x1 = tcopy[c][0]
             y1f =tcopy[c][3]
@@ -58,53 +58,83 @@ def addSquare(t1):
             estModifie = False
             lenn = len(tcopy)
             for d in range(0,lenn) :
-
                 x2 = tcopy[d][0]
                 y2 =tcopy[d][1]     
                 x2f =tcopy[d][2]       
                 y2f = tcopy[d][3]
                 
-                if x2>x1 and x2<x1f:
-                    if y2>y1  and y2<y1f:
-                        if x2f>x1f:
-                            longueur = x1f - x2
-                        else:
-                            longueur = x2f -x2     
+                
+                
+                booleen = False
+                #En haut à gauche
+                if x2>x1 and x2<x1f and y2>y1  and y2<y1f:
+                    booleen = True
+                    if x2f>x1f:
+                        longueur = x1f - x2
+                    else:
+                        longueur = x2f -x2     
 
-                        if y2f>y1:
-                            hauteur = y1f-y2
-                        else:
-                            hauteur = y2f-y2
+                    if y2f>y1:
+                        hauteur = y1f-y2
+                    else:
+                        hauteur = y2f-y2
+                #En haut à droite
+                elif x2f>x1 and x2f<x1f and y2>y1  and y2<y1f:
+                    booleen = True
+                    if x2<x1:
+                        longueur = x2f - x1
+                    else:
+                        longueur = x2f -x2     
 
-                        aire = hauteur * longueur
-                        aire1 = (x1f-x1)*(y1f-y1)
-                        aire2 = (x2f-x2)*(y2f-y2)
-                        ratio1 = aire/aire1
-                        ratio2 = aire/aire2
-                        if ratio1>=0.5 or ratio2 >= 0.5:
-                            newSquare = CombineSquare(tcopy[c],tcopy[d])
-                            #t2.append(newSquare)
-                            estModifie = True
-                            #del t1[d]
-                            #del t1[c]
-                            #tcopy.remove(tcopy[d])
-                            #tcopy.remove(tcopy[c])
-                            print(c>=len(tcopy))
-                            tcopy.pop(d)
-                            if(d<c):
-                                ind = c-1
-                            else:
-                                ind = c
-                            tcopy.pop(ind)
-                            tcopy.append(newSquare)
-                            c = lenn+1
-                            d = lenn+1
-                            doisRefaire = True
-                            break
-                            #t4.append(t1[c])
-                             #t4.append(t1[d])
-                            #t1.pop(d)
-                            #t1.pop(c)
+                    if y2f>y1:
+                        hauteur = y1f-y2
+                    else:
+                        hauteur = y2f-y2
+                #En bas à gauche
+                elif x2>x1 and x2<x1f and y2f>y1  and y2f<y1f:
+                    booleen = True
+                    if x2f>x1f:
+                        longueur = x1f - x2
+                    else:
+                        longueur = x2f -x2     
+
+                    if y2<y1:
+                        hauteur = y2f-y1
+                    else:
+                        hauteur = y2f-y2
+                #En bas a droite
+                elif x2f>x1 and x2f<x1f and y2f>y1  and y2f<y1f:
+                    booleen = True
+                    if x2<x1:
+                        longueur = x2f - x1
+                    else:
+                        longueur = x2f -x2    
+
+                    if y2<y1:
+                        hauteur = y2f-y1
+                    else:
+                        hauteur = y2f-y2                        
+                if booleen:
+                    aire = hauteur * longueur
+                    aire1 = (x1f-x1)*(y1f-y1)
+                    aire2 = (x2f-x2)*(y2f-y2)
+                    ratio1 = aire/aire1
+                    ratio2 = aire/aire2
+                    if ratio1>=0.5 or ratio2 >= 0.5:
+                        newSquare = CombineSquare(tcopy[c],tcopy[d])
+                        estModifie = True
+                        print(c>=len(tcopy))
+                        tcopy.pop(d)
+                        if(d<c):
+                            ind = c-1
+                        else:
+                            ind = c
+                        tcopy.pop(ind)
+                        tcopy.append(newSquare)
+                        c = lenn+1
+                        d = lenn+1
+                        doisRefaire = True
+                        break
 
         
             if not(estModifie):
@@ -187,11 +217,11 @@ def getContours(img, imgContour):
 
 # Load image
 def check_empty_img(arg):
-    img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".jpeg")
+    img = cv2.imread(r"C:\Users\Vincent\Documents\L3\S6\Image\Projet\img_proj\img_proj\\" + str(arg) + ".jpeg")
     if img is None:
-        img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".jpg")
+        img = cv2.imread(r"C:\Users\Vincent\Documents\L3\S6\Image\Projet\img_proj\img_proj\\" + str(arg) + ".jpg")
     if img is None:
-        img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".png")
+        img = cv2.imread(r"C:\Users\Vincent\Documents\L3\S6\Image\Projet\img_proj\img_proj\\" + str(arg) + ".png")
     return img
 
 for a in range(0, 60,2):
@@ -220,5 +250,3 @@ for a in range(0, 60,2):
     # cv2.imshow("6 Contour",imgContour)
 
     cv2.imwrite(str(a)+".jpg", imgContour)
-
-
