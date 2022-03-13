@@ -142,17 +142,9 @@ def addSquare(t1):
 
     return t2
 
-def InTab(t1,element):
-    for i in range(0,len(t1)):
-        if(element[0] ==  t1[i][0]):
-            if (element[1] ==  t1[i][1]):
-                if (element[2] ==  t1[i][2]):
-                    if (element[3] ==  t1[i][3]):
-                        return True
-    return False
 
     
-
+#Combine deux carrés
 def CombineSquare(square1,square2):
     x1 = square1[0]
     x1f = square1[2]
@@ -184,10 +176,10 @@ def CombineSquare(square1,square2):
     return (x,y,xf,yf)
     
     
-            
-def getContours(img, imgContour):
+#Affiche les carrés           
+def getContours(img, imgContour,imgNormal):
     contours, hierarchy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    #cv2.drawContours(imgContour, contours, -1, (255, 0, 255), 7)
+    cv2.drawContours(imgContour, contours, -1, (255, 0, 255), 7)
     t = []
     ind = 0
     for cnt in contours:
@@ -210,19 +202,24 @@ def getContours(img, imgContour):
 
     t3 = checkSquareIn(t)
     t3 = addSquare(t3)
+    images = []
     for c in range(len(t3)):
         cv2.rectangle(imgContour, (t3[c][0],t3[c][1]),(t3[c][2],t3[c][3]) , (0, 255, 0), 5)
+        images.append(imgNormal[t3[c][1]:t3[c][3],t3[c][0]:t3[c][2]] )
         #cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
+    return images
 
 
 # Load image
 def check_empty_img(arg):
-    img = cv2.imread(r"C:\Users\Vincent\Documents\L3\S6\Image\Projet\img_proj\img_proj\\" + str(arg) + ".jpeg")
+    img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".jpeg")
     if img is None:
-        img = cv2.imread(r"C:\Users\Vincent\Documents\L3\S6\Image\Projet\img_proj\img_proj\\" + str(arg) + ".jpg")
+        img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".jpg")
     if img is None:
-        img = cv2.imread(r"C:\Users\Vincent\Documents\L3\S6\Image\Projet\img_proj\img_proj\\" + str(arg) + ".png")
+        img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".png")
     return img
+
+
 
 for a in range(0, 60,2):
     threshold1 = 50 #20
@@ -239,7 +236,11 @@ for a in range(0, 60,2):
     imgCanny = cv2.Canny(imgGray, threshold1, threshold2)
     imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
 
-    getContours(imgDil, imgContour)
+    images = getContours(imgDil, imgContour,img)
+    for i in range(len(images)):
+        cv2.imshow("image",images[i])
+        cv2.waitKey(0) 
+        cv2.destroyAllWindows() 
 
 
     # cv2.imshow("1 normal",img)
