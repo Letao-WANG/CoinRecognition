@@ -179,7 +179,7 @@ def CombineSquare(square1,square2):
 #Affiche les carrés           
 def getContours(img, imgContour,imgNormal):
     contours, hierarchy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    cv2.drawContours(imgContour, contours, -1, (255, 0, 255), 7)
+    #cv2.drawContours(imgContour, contours, -1, (255, 0, 255), 7)
     t = []
     ind = 0
     for cnt in contours:
