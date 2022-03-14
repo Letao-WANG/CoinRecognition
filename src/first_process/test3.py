@@ -4,22 +4,26 @@ import json
 
 ratio = 0.5
 
-# Vérifie si un carré est dans un autre, ne le prend pas en compte
+# Retourne l'ensemble des rectangles qui ne sont pas inclut dans un autre
 def checkSquareIn(t1):
 
     t2 = []
-
+    # Pour chaque éléments de t1
     for c in range(len(t1)) :
         booleen = True
+        # On récupére les coordonnées 
         y1 =t1[c][1]
         x1 = t1[c][0]
         y1f =t1[c][3]
         x1f =t1[c][2]
+        #Pour chaque éléments de t1
         for d in range(0,len(t1)) :
+            # On récupére les coordonnées 
             x2 = t1[d][0]
             y2 =t1[d][1]     
             x2f =t1[d][2]       
             y2f = t1[d][3]
+            # Vérification d'inclusion 
             if x1>x2 and x1<x2f: # x du premier > au xdu second
                 if x1f > x2 and x1f<x2f: # x final du premier < au x final du second
                     if y1>y2 and y1<y2f:
@@ -34,9 +38,9 @@ def checkSquareIn(t1):
                 t2.remove(t1[c])
     return t2
 
-# Vérifie si deux carrés sont l'un sur l'autre, si plus de 50%
+# Vérifie si deux rectangles ont une intersection, si plus de 50%
 # est partagé, les réunis, sinon ne fais rien 
-def addSquare(t1):
+def SquareIntersection(t1):
     t2 = []
     t4 = []
     tcopy = []
@@ -121,7 +125,7 @@ def addSquare(t1):
                     aire2 = (x2f-x2)*(y2f-y2)
                     ratio1 = aire/aire1
                     ratio2 = aire/aire2
-                    if ratio1>=0.5 or ratio2 >= 0.5:
+                    if ratio1>=0.4 or ratio2 >= 0.4:
                         newSquare = CombineSquare(tcopy[c],tcopy[d])
                         estModifie = True
                         tcopy.pop(d)
@@ -144,7 +148,7 @@ def addSquare(t1):
 
 
     
-#Combine deux carrés
+#Combine deux carrés, retourne un tuple de la forme (x,y,xf,yf).
 def CombineSquare(square1,square2):
     x1 = square1[0]
     x1f = square1[2]
@@ -176,7 +180,7 @@ def CombineSquare(square1,square2):
     return (x,y,xf,yf)
     
     
-#Affiche les carrés           
+#Affiche les rectangles        
 def getContours(img, imgContour,imgNormal):
     contours, hierarchy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     #cv2.drawContours(imgContour, contours, -1, (255, 0, 255), 7)
@@ -200,8 +204,8 @@ def getContours(img, imgContour,imgNormal):
                 t.append((x,y,x + w, y + h))
             ind+=1
 
-    t3 = checkSquareIn(t)
-    t3 = addSquare(t3)
+    #t3 = checkSquareIn(t)
+    t3 = SquareIntersection(t)
     images = []
     for c in range(len(t3)):
         cv2.rectangle(imgContour, (t3[c][0],t3[c][1]),(t3[c][2],t3[c][3]) , (0, 255, 0), 5)
@@ -210,7 +214,7 @@ def getContours(img, imgContour,imgNormal):
     return images
 
 
-# Load image
+# Charge l'image arg
 def check_empty_img(arg):
     img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".jpeg")
     if img is None:
@@ -219,57 +223,63 @@ def check_empty_img(arg):
         img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".png")
     return img
 
-sommeSuccess = 0
 
-for a in range(0, 60,2):
-    threshold1 = 50 #20
-    threshold2 = 60 #80
-    kernel = np.ones((5, 5), np.float32) / 25
+# Méthode principal
+def main():
+    # Le nombre de piece bien detecter (le nombre de piece sur l'image correspond bien)
+    sommeSuccess = 0
 
-    img = check_empty_img(a)
-    if img is None :
-        continue
-    imgContour = img.copy()
+    # Pour chaque image
+    for a in range(0, 60,2):
+        threshold1 = 50 #20
+        threshold2 = 60 #80
+        kernel = np.ones((5, 5), np.float32) / 25
 
-    #imgBlur = cv2.GaussianBlur(img, (7, 7), 5)
-    imgBlur = cv2.GaussianBlur(img, (21, 21), cv2.BORDER_DEFAULT)
-    imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
-    imgCanny = cv2.Canny(imgGray, threshold1, threshold2)
-    imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
+        img = check_empty_img(a)
+        if img is None :
+            continue
+        imgContour = img.copy()
 
-    images = getContours(imgDil, imgContour,img)
-    if(len(images) == 0):     
-        imgBlur = cv2.GaussianBlur(img, (7, 7), 5)
-        #imgBlur = cv2.GaussianBlur(img, (21, 21), cv2.BORDER_DEFAULT)
+        imgBlur = cv2.GaussianBlur(img, (21, 21), cv2.BORDER_DEFAULT)
         imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
         imgCanny = cv2.Canny(imgGray, threshold1, threshold2)
         imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
 
         images = getContours(imgDil, imgContour,img)
+        if(len(images) == 0):     
+            imgBlur = cv2.GaussianBlur(img, (7, 7), 5)
+            #imgBlur = cv2.GaussianBlur(img, (21, 21), cv2.BORDER_DEFAULT)
+            imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
+            imgCanny = cv2.Canny(imgGray, threshold1, threshold2)
+            imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
 
-    with open(r"D:\COur\img_proj\\" + str(a) + ".json") as json_data:
-        data_dict = json.load(json_data)
-        if(len(data_dict["shapes"])==len(images)):
-            print("image "+str(a)+" : Success")
-            sommeSuccess += 1
-        else:
-            print("image "+str(a)+" : Failure")
+            images = getContours(imgDil, imgContour,img)
 
-    show = False
-    if(show):
-        for i in range(len(images)):
-            cv2.imshow("image",images[i])
-            cv2.waitKey(0) 
-            cv2.destroyAllWindows() 
+        with open(r"D:\COur\img_proj\\" + str(a) + ".json") as json_data:
+            data_dict = json.load(json_data)
+            if(len(data_dict["shapes"])==len(images)):
+                print("image "+str(a)+" : Success")
+                sommeSuccess += 1
+            else:
+                print("image "+str(a)+" : Failure")
+
+        show = False
+        if(show):
+            for i in range(len(images)):
+                cv2.imshow("image",images[i])
+                cv2.waitKey(0) 
+                cv2.destroyAllWindows() 
 
 
-    # cv2.imshow("1 normal",img)
-    # cv2.imshow("2 Blur",imgBlur)
-    # cv2.imshow("3 GrayScale",imgGray)
-    # cv2.imshow("4 Canny",imgCanny)
-    # cv2.imshow("5 Dilatation",imgDil)
-    # cv2.imshow("6 Contour",imgContour)
+        # cv2.imshow("1 normal",img)
+        # cv2.imshow("2 Blur",imgBlur)
+        # cv2.imshow("3 GrayScale",imgGray)
+        # cv2.imshow("4 Canny",imgCanny)
+        # cv2.imshow("5 Dilatation",imgDil)
+        # cv2.imshow("6 Contour",imgContour)
 
-    cv2.imwrite(str(a)+".jpg", imgContour)
+        cv2.imwrite(str(a)+".jpg", imgContour)
 
-print(str(sommeSuccess) + " Success")
+    print(str(sommeSuccess) + " Success")
+
+main()
