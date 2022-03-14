@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import json
 
 ratio = 0.5
 
@@ -123,7 +124,6 @@ def addSquare(t1):
                     if ratio1>=0.5 or ratio2 >= 0.5:
                         newSquare = CombineSquare(tcopy[c],tcopy[d])
                         estModifie = True
-                        print(c>=len(tcopy))
                         tcopy.pop(d)
                         if(d<c):
                             ind = c-1
@@ -219,7 +219,7 @@ def check_empty_img(arg):
         img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".png")
     return img
 
-
+sommeSuccess = 0
 
 for a in range(0, 60,2):
     threshold1 = 50 #20
@@ -231,16 +231,36 @@ for a in range(0, 60,2):
         continue
     imgContour = img.copy()
 
-    imgBlur = cv2.GaussianBlur(img, (7, 7), 5)
+    #imgBlur = cv2.GaussianBlur(img, (7, 7), 5)
+    imgBlur = cv2.GaussianBlur(img, (21, 21), cv2.BORDER_DEFAULT)
     imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
     imgCanny = cv2.Canny(imgGray, threshold1, threshold2)
     imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
 
     images = getContours(imgDil, imgContour,img)
-    for i in range(len(images)):
-        cv2.imshow("image",images[i])
-        cv2.waitKey(0) 
-        cv2.destroyAllWindows() 
+    if(len(images) == 0):     
+        imgBlur = cv2.GaussianBlur(img, (7, 7), 5)
+        #imgBlur = cv2.GaussianBlur(img, (21, 21), cv2.BORDER_DEFAULT)
+        imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
+        imgCanny = cv2.Canny(imgGray, threshold1, threshold2)
+        imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
+
+        images = getContours(imgDil, imgContour,img)
+
+    with open(r"D:\COur\img_proj\\" + str(a) + ".json") as json_data:
+        data_dict = json.load(json_data)
+        if(len(data_dict["shapes"])==len(images)):
+            print("image "+str(a)+" : Success")
+            sommeSuccess += 1
+        else:
+            print("image "+str(a)+" : Failure")
+
+    show = False
+    if(show):
+        for i in range(len(images)):
+            cv2.imshow("image",images[i])
+            cv2.waitKey(0) 
+            cv2.destroyAllWindows() 
 
 
     # cv2.imshow("1 normal",img)
@@ -251,3 +271,5 @@ for a in range(0, 60,2):
     # cv2.imshow("6 Contour",imgContour)
 
     cv2.imwrite(str(a)+".jpg", imgContour)
+
+print(str(sommeSuccess) + " Success")
