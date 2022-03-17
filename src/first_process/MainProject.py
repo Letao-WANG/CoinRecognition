@@ -217,11 +217,11 @@ def getContours(img, imgContour,imgNormal):
 
 # Charge l'image arg
 def check_empty_img(arg):
-    img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".jpeg")
+    img = cv2.imread(r"origin_images\\" + str(arg) + ".jpeg")
     if img is None:
-        img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".jpg")
+        img = cv2.imread(r"origin_images\\" + str(arg) + ".jpg")
     if img is None:
-        img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".png")
+        img = cv2.imread(r"origin_images\\" + str(arg) + ".png")
     return img
 
 
@@ -262,7 +262,7 @@ def main():
 
             images = getContours(imgDil, imgContour,img)
 
-        with open(r"D:\COur\img_proj\\" + str(a) + ".json") as json_data:
+        with open(r"origin_images\\" + str(a) + ".json") as json_data:
             data_dict = json.load(json_data)
             if(len(data_dict["shapes"])==len(images)):
                 print("image "+str(a)+" : Success")
@@ -272,7 +272,7 @@ def main():
 
         show = False
         saveImgContour = False
-        save = True
+        save = False
         saveOther = False
         
         if(show):
