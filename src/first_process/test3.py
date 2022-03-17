@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import json
+import os
 
 ratio = 0.5
 
@@ -189,7 +190,7 @@ def getContours(img, imgContour,imgNormal):
     for cnt in contours:
         area = cv2.contourArea(cnt)
         if area > 8000: #7000
-            cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
+            cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 5)
             peri = cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
             #print(str(len(approx)) + " " + str(area))
@@ -216,11 +217,11 @@ def getContours(img, imgContour,imgNormal):
 
 # Charge l'image arg
 def check_empty_img(arg):
-    img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".jpeg")
+    img = cv2.imread(r"origin_images\\" + str(arg) + ".jpeg")
     if img is None:
-        img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".jpg")
+        img = cv2.imread(r"origin_images\\"  + str(arg) + ".jpg")
     if img is None:
-        img = cv2.imread(r"D:\COur\img_proj\\" + str(arg) + ".png")
+        img = cv2.imread(r"origin_images\\"  + str(arg) + ".png")
     return img
 
 
@@ -228,11 +229,11 @@ def check_empty_img(arg):
 def main():
     # Le nombre de piece bien detecter (le nombre de piece sur l'image correspond bien)
     sommeSuccess = 0
-
+    #os.chdir("E:\Repository\CoinRecognition\data")
+    print("Current working directory: {0}".format(os.getcwd()))
     # Pour chaque image
     for a in range(0, 60,2):
-        threshold1 = 50 #20
-        threshold2 = 60 #80
+
         kernel = np.ones((5, 5), np.float32) / 25
 
         img = check_empty_img(a)
@@ -242,6 +243,13 @@ def main():
 
         imgBlur = cv2.GaussianBlur(img, (21, 21), cv2.BORDER_DEFAULT)
         imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
+        #v = np.median( imgGray )
+        #sigma = 0.9
+        #lower = int(max(0, (1.0 - sigma) * v))
+        #upper = int(min(255, (1.0 + sigma) * v))       
+        threshold1 = 50 #20 50 60
+        threshold2 = 60 #80 60 100
+        
         imgCanny = cv2.Canny(imgGray, threshold1, threshold2)
         imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
 
@@ -255,7 +263,7 @@ def main():
 
             images = getContours(imgDil, imgContour,img)
 
-        with open(r"D:\COur\img_proj\\" + str(a) + ".json") as json_data:
+        with open(r"origin_images\\" + str(a) + ".json") as json_data:
             data_dict = json.load(json_data)
             if(len(data_dict["shapes"])==len(images)):
                 print("image "+str(a)+" : Success")
@@ -264,22 +272,39 @@ def main():
                 print("image "+str(a)+" : Failure")
 
         show = False
+        saveImgContour = False
+        save = False
+        saveOther = False
+
         if(show):
             for i in range(len(images)):
                 cv2.imshow("image",images[i])
                 cv2.waitKey(0) 
-                cv2.destroyAllWindows() 
+                cv2.destroyAllWindows()
+            cv2.imshow("1 normal",img)
+            cv2.imshow("2 Blur",imgBlur)
+            cv2.imshow("3 GrayScale",imgGray)
+            cv2.imshow("4 Canny",imgCanny)
+            cv2.imshow("5 Dilatation",imgDil)
+            cv2.imshow("6 Contour",imgContour)
+            
+        if(save):
+            #os.mkdir("Result\\"+str(a))
+            for i in range(len(images)):
+                cv2.imwrite("Result\\"+str(a)+"\piece"+str(i)+".jpg", images[i]) 
 
+        if(saveImgContour) :
+             cv2.imwrite("Result\\"+str(a)+"\contour.jpg", imgContour)
 
-        # cv2.imshow("1 normal",img)
-        # cv2.imshow("2 Blur",imgBlur)
-        # cv2.imshow("3 GrayScale",imgGray)
-        # cv2.imshow("4 Canny",imgCanny)
-        # cv2.imshow("5 Dilatation",imgDil)
-        # cv2.imshow("6 Contour",imgContour)
+        if(saveOther) :       
+            cv2.imwrite("Result\\"+str(a)+"\blur.jpg", imgBlur)
+            cv2.imwrite("Result\\"+str(a)+"\gray.jpg", imgGray)
+            cv2.imwrite("Result\\"+str(a)+"\canny.jpg", imgCanny)
+            cv2.imwrite("Result\\"+str(a)+"\dilatation.jpg", imgDil)
+            cv2.imwrite("Result\\"+str(a)+"\contour.jpg", imgContour)
 
-        cv2.imwrite(str(a)+".jpg", imgContour)
 
     print(str(sommeSuccess) + " Success")
+
 
 main()
