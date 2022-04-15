@@ -357,6 +357,13 @@ def thresholding(image, threshold):
 
 
 def cut_coin_image(image_gray, modify_size=200, res_size=150):
+    """
+    Remove redundant background of coins
+    :param image_gray: image gris
+    :param modify_size: first reduce size of image
+    :param res_size: size of result image
+    :return: image gris
+    """
     image_gray = reduce_size(image_gray, modify_size)
 
     blur = cv2.GaussianBlur(image_gray, (5, 5), 0)
