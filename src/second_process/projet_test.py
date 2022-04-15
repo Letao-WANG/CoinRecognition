@@ -148,9 +148,9 @@ def determine_piece(image_gray):
     image_1_euro = canny("test_images/1_euro.jpg")
 
     image = canny(image_gray)
-    # cv2.imshow('original', image_50_cents)
-    # cv2.imshow('eg', image)
-    # cv2.waitKey(0)
+    cv2.imshow('original', image_1_euro)
+    cv2.imshow('eg', image)
+    cv2.waitKey(0)
     cos_sim = calculate_cosine_similarity(image_50_cents, image)
     print(cos_sim)
     cos_sim = calculate_cosine_similarity(image_50_cents, image_1_euro)

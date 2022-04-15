@@ -123,6 +123,62 @@ def otsu(gray):
     return final_img
 
 
+def erosion_verify_element(content, element):
+    for i in range(content.shape[0]):
+        for j in range(content.shape[1]):
+            if element[i, j] == 1:
+                if not content[i, j] == 1:
+                    return False
+    return True
+
+
+def dilation_verify_element(content, element):
+    for i in range(content.shape[0]):
+        for j in range(content.shape[1]):
+            if element[i, j] == 1:
+                if content[i, j] == 1:
+                    return True
+    return False
+
+
+def erosion(image, element):
+    size = image.shape
+    size_element = element.shape
+    img = np.zeros([size[0], size[1]], dtype=bool)
+    for i in range(size_element[0], size[0]-size_element[0]):
+        for j in range(size_element[1], size[1]-size_element[1]):
+            content = image[i:i+size_element[0], j:j+size_element[1]]
+            is_verify = erosion_verify_element(content, element)
+            if is_verify:
+                img[i+size_element[0]//2, j+size_element[1]//2] = 1
+    return img
+
+
+def dilation(image, element):
+    size = image.shape
+    size_element = element.shape
+    img = np.zeros([size[0], size[1]], dtype=bool)
+    for i in range(size_element[0], size[0]-size_element[0]):
+        for j in range(size_element[1], size[1]-size_element[1]):
+            content = image[i:i+size_element[0], j:j+size_element[1]]
+            is_verify = dilation_verify_element(content, element)
+            if is_verify:
+                img[i+size_element[0]//2, j+size_element[1]//2] = 1
+    return img
+
+
+def opening(image, element):
+    image_erosion = erosion(image, element)
+    image_opening = dilation(image_erosion, element)
+    return image_opening
+
+
+def closing(image, element):
+    image_dilatation = dilation(image, element)
+    image_closing = erosion(image_dilatation, element)
+    return image_closing
+
+
 def erosion(image_gris, elmt_struct, center):
     eros_output = np.ones((image_gris.shape[0], image_gris.shape[1]), dtype=np.uint8)
 
