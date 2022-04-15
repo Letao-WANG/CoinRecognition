@@ -265,10 +265,6 @@ def closing(image_gris, diameter):
 def delete_background(image_gray, image):
     image_new = image
     size = image_gray.shape
-    delete_top_row = 0
-    delete_bottom_row = 0
-    delete_left_col = 0
-    delete_right_col = 0
 
     # delete_top_row
     for i in range(size[0]):
@@ -339,5 +335,36 @@ def resize_image(image_gray):
     diameter = 13
     image = closing(image, diameter)
 
+    res = delete_background(image, image_gray)
+    return res
+
+
+def reduce_size(image, row):
+    scale = image.shape[0]/row
+    col = int(image.shape[1]/scale)
+    return cv2.resize(image, (col, row))
+
+
+def thresholding(image, threshold):
+    img = np.zeros(image.shape[0], image.shape[1], dtype=bool)
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            if image[i, j] < threshold:
+                img = 0
+            else:
+                img = 1
+    return img
+
+
+def cut_coin_image(image_gray):
+    blur = cv2.GaussianBlur(image_gray, (5, 5), 0)
+    ret, image = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    plt.figure()
+    plt.imshow(image, cmap=plt.cm.gray)
+
+    diameter = 5
+    image = opening(image, diameter)
+    plt.figure()
+    plt.imshow(image, cmap=plt.cm.gray)
     res = delete_background(image, image_gray)
     return res
