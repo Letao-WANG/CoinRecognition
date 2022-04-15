@@ -356,15 +356,15 @@ def thresholding(image, threshold):
     return img
 
 
-def cut_coin_image(image_gray):
+def cut_coin_image(image_gray, modify_size=200, res_size=150):
+    image_gray = reduce_size(image_gray, modify_size)
+
     blur = cv2.GaussianBlur(image_gray, (5, 5), 0)
     ret, image = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    plt.figure()
-    plt.imshow(image, cmap=plt.cm.gray)
 
     diameter = 5
     image = opening(image, diameter)
-    plt.figure()
-    plt.imshow(image, cmap=plt.cm.gray)
-    res = delete_background(image, image_gray)
-    return res
+    image = delete_background(image, image_gray)
+
+    image = reduce_size(image, res_size)
+    return image
