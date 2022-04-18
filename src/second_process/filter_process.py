@@ -4,6 +4,7 @@ from PIL import Image
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
+np.seterr(divide='ignore', invalid='ignore')
 
 from src.util_func.util import *
 
@@ -70,29 +71,14 @@ def main():
     image = (mpimg.imread('test_images/20cents.jpg').copy() * 255).astype(np.uint8)
     image_rgb = get_image_rgb(image)
     image_gray = get_image_gray(image_rgb)
-    # image = canny(image)
-    # image = resize(image, (, 1000))
-    # image = convolution_filter(image, filter_sobel_x())
-
-    image = otsu(image_gray)
     # plt.figure()
-    # plt.imshow(image, cmap=plt.cm.gray)
+    # plt.imshow(image_gray, cmap=plt.cm.gray)
 
-    diameter = 5
-    image = opening(image, diameter)
+    # image_gray = reduce_size(image_gray, 150)
     # plt.figure()
-    # plt.imshow(image, cmap=plt.cm.gray)
+    # plt.imshow(image_gray, cmap=plt.cm.gray)
 
-    image = closing(image, diameter)
-    # plt.figure()
-    # plt.imshow(image, cmap=plt.cm.gray)
-
-    diameter = 13
-    image = closing(image, diameter)
-    plt.figure()
-    plt.imshow(image, cmap=plt.cm.gray)
-
-    image = delete_background(image, image_gray)
+    image = cut_coin_image(image_gray)
     plt.figure()
     plt.imshow(image, cmap=plt.cm.gray)
 
@@ -101,3 +87,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

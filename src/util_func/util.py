@@ -123,6 +123,62 @@ def otsu(gray):
     return final_img
 
 
+def erosion_verify_element(content, element):
+    for i in range(content.shape[0]):
+        for j in range(content.shape[1]):
+            if element[i, j] == 1:
+                if not content[i, j] == 1:
+                    return False
+    return True
+
+
+def dilation_verify_element(content, element):
+    for i in range(content.shape[0]):
+        for j in range(content.shape[1]):
+            if element[i, j] == 1:
+                if content[i, j] == 1:
+                    return True
+    return False
+
+
+def erosion(image, element):
+    size = image.shape
+    size_element = element.shape
+    img = np.zeros([size[0], size[1]], dtype=bool)
+    for i in range(size_element[0], size[0]-size_element[0]):
+        for j in range(size_element[1], size[1]-size_element[1]):
+            content = image[i:i+size_element[0], j:j+size_element[1]]
+            is_verify = erosion_verify_element(content, element)
+            if is_verify:
+                img[i+size_element[0]//2, j+size_element[1]//2] = 1
+    return img
+
+
+def dilation(image, element):
+    size = image.shape
+    size_element = element.shape
+    img = np.zeros([size[0], size[1]], dtype=bool)
+    for i in range(size_element[0], size[0]-size_element[0]):
+        for j in range(size_element[1], size[1]-size_element[1]):
+            content = image[i:i+size_element[0], j:j+size_element[1]]
+            is_verify = dilation_verify_element(content, element)
+            if is_verify:
+                img[i+size_element[0]//2, j+size_element[1]//2] = 1
+    return img
+
+
+def opening(image, element):
+    image_erosion = erosion(image, element)
+    image_opening = dilation(image_erosion, element)
+    return image_opening
+
+
+def closing(image, element):
+    image_dilatation = dilation(image, element)
+    image_closing = erosion(image_dilatation, element)
+    return image_closing
+
+
 def erosion(image_gris, elmt_struct, center):
     eros_output = np.ones((image_gris.shape[0], image_gris.shape[1]), dtype=np.uint8)
 
@@ -209,10 +265,6 @@ def closing(image_gris, diameter):
 def delete_background(image_gray, image):
     image_new = image
     size = image_gray.shape
-    delete_top_row = 0
-    delete_bottom_row = 0
-    delete_left_col = 0
-    delete_right_col = 0
 
     # delete_top_row
     for i in range(size[0]):
@@ -285,3 +337,41 @@ def resize_image(image_gray):
 
     res = delete_background(image, image_gray)
     return res
+
+
+def reduce_size(image, row):
+    scale = image.shape[0]/row
+    col = int(image.shape[1]/scale)
+    return cv2.resize(image, (col, row))
+
+
+def thresholding(image, threshold):
+    img = np.zeros(image.shape[0], image.shape[1], dtype=bool)
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            if image[i, j] < threshold:
+                img = 0
+            else:
+                img = 1
+    return img
+
+
+def cut_coin_image(image_gray, modify_size=200, res_size=150):
+    """
+    Remove redundant background of coins
+    :param image_gray: image gris
+    :param modify_size: first reduce size of image
+    :param res_size: size of result image
+    :return: image gris
+    """
+    image_gray = reduce_size(image_gray, modify_size)
+
+    blur = cv2.GaussianBlur(image_gray, (5, 5), 0)
+    ret, image = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    diameter = 5
+    image = opening(image, diameter)
+    image = delete_background(image, image_gray)
+
+    image = reduce_size(image, res_size)
+    return image
