@@ -3,12 +3,12 @@ import numpy as np
 import json
 import math
 import os
-import util
+from util import *
+import matplotlib.pyplot as plt 
 
 #import imagehash
-from PIL import Image
+from PIL import Image,ImageChops
 from skimage.metrics import structural_similarity as ssim
-
 os.chdir("E:\Repository\CoinRecognition\data") 
 
 ratio = 0.5
@@ -249,14 +249,16 @@ def calculate_cosine_similarity(array1, array2):
 
 # Determine la valeur en fonction de l'histo
 def determine_piece2(image):
-    IMG_SIZE = (200, 200)
+    IMG_SIZE = (int(image.shape[0]/2),int(image.shape[1]/2))
 
     target_img = cv2.resize(image, IMG_SIZE)
     target_hist = cv2.calcHist([target_img], [0], None, [256], [0, 256])
+    cv2.normalize(target_hist, target_hist, 0, 255, cv2.NORM_MINMAX)
 
     comparing_img = check_empty_img("test_images\\1_ctm")
     comparing_img = cv2.resize(comparing_img, IMG_SIZE)
     comparing_hist = cv2.calcHist([comparing_img], [0], None, [256], [0, 256])
+
 
     ret1 = cv2.compareHist(target_hist, comparing_hist, 0)
     #print(ret1)
@@ -265,47 +267,59 @@ def determine_piece2(image):
     comparing_img = cv2.resize(comparing_img, IMG_SIZE)
     comparing_hist = cv2.calcHist([comparing_img], [0], None, [256], [0, 256])
 
+
     ret2 = cv2.compareHist(target_hist, comparing_hist, 0)
     #print(ret2)
 
-    Comparing_img = check_empty_img("test_images\\5_ctms")
+    comparing_img = check_empty_img("test_images\\5_ctms")
     comparing_img = cv2.resize(comparing_img, IMG_SIZE)
     comparing_hist = cv2.calcHist([comparing_img], [0], None, [256], [0, 256])
+
 
     ret3 = cv2.compareHist(target_hist, comparing_hist, 0)
     #print(ret3)
 
     comparing_img = check_empty_img("test_images\\10_ctms")
     comparing_img = cv2.resize(comparing_img, IMG_SIZE)
+    
     comparing_hist = cv2.calcHist([comparing_img], [0], None, [256], [0, 256])
+
 
     ret4 = cv2.compareHist(target_hist, comparing_hist, 0)
     #print(ret4)
 
     comparing_img = check_empty_img("test_images\\20_ctms")
     comparing_img = cv2.resize(comparing_img, IMG_SIZE)
+    
     comparing_hist = cv2.calcHist([comparing_img], [0], None, [256], [0, 256])
+
 
     ret5 = cv2.compareHist(target_hist, comparing_hist, 0)
     #print(ret5)
 
     comparing_img = check_empty_img("test_images\\50_ctms")
     comparing_img = cv2.resize(comparing_img, IMG_SIZE)
+    
     comparing_hist = cv2.calcHist([comparing_img], [0], None, [256], [0, 256])
+
 
     ret6 = cv2.compareHist(target_hist, comparing_hist, 0)
     #print(ret6)
 
-    comparing_img = check_empty_img("test_images\\1_euro")
+    comparing_img = check_empty_img("test_images\\1_1")
     comparing_img = cv2.resize(comparing_img, IMG_SIZE)
+
     comparing_hist = cv2.calcHist([comparing_img], [0], None, [256], [0, 256])
+
 
     ret7 = cv2.compareHist(target_hist, comparing_hist, 0)
     #print(ret7)
 
     comparing_img = check_empty_img("test_images\\2_euros")
     comparing_img = cv2.resize(comparing_img, IMG_SIZE)
+    
     comparing_hist = cv2.calcHist([comparing_img], [0], None, [256], [0, 256])
+
 
     ret8 = cv2.compareHist(target_hist, comparing_hist, 0)
     #print(ret8)
@@ -459,7 +473,7 @@ def mse(imageA,imageB):
 
 # Determine la valeur en fonction du ssim
 def compare_images(image):
-    IMG_SIZE = (200, 200)
+    IMG_SIZE = (int(image.shape[0]*0.5), int(image.shape[1]*0.5))
 
     imageA = cv2.resize(image, IMG_SIZE)
     image_1_cent = check_empty_img("test_images\\1_ctm")
@@ -667,8 +681,11 @@ def main():
                 #imgGray = cv2.cvtColor(images[i], cv2.COLOR_BGR2GRAY)
                 #th, im_gray_th_otsu = cv2.threshold(imgGray, 128, 255, cv2.THRESH_OTSU)
                 #TEST
+                cv2.imwrite('test_images/tmp.jpg', images[i])
+                images[i] =test4()
                 #compare_images(images[i])
                 determine_piece2(images[i])
+
                 cv2.imshow("piece",images[i])
                 cv2.waitKey(0) 
                 cv2.destroyAllWindows()
@@ -701,8 +718,43 @@ def main():
     print(str(sommeSuccess) + " Success")
 
 
+def compare(original,image_to_compare):
+    # 2) Check for similarities between the 2 images
+    sift = cv2.SIFT_create()
+    kp_1, desc_1 = sift.detectAndCompute(original, None)
+    kp_2, desc_2 = sift.detectAndCompute(image_to_compare, None)
+
+    index_params = dict(algorithm=0, trees=5)
+    search_params = dict()
+    flann = cv2.FlannBasedMatcher(index_params, search_params)
+    matches = flann.knnMatch(desc_1, desc_2, k=2)
+    good_points = []
+    ratio = 0.6
+    for m, n in matches:
+        if m.distance < ratio*n.distance:
+            good_points.append(m)
+            print(len(good_points))
+    result = cv2.drawMatches(original, kp_1, image_to_compare, kp_2, good_points, None)
+    # Define how similar they are
+    number_keypoints = 0
+    if len(kp_1) <= len(kp_2):
+        number_keypoints = len(kp_1)
+    else:
+        number_keypoints = len(kp_2)
+    print("Keypoints 1ST Image: " + str(len(kp_1)))
+    print("Keypoints 2ND Image: " + str(len(kp_2)))
+    print("GOOD Matches:", len(good_points))
+    print("How good it's the match: ", len(good_points) / number_keypoints * 100, "%")
 
 
+def test4():
+
+    image = (mpimg.imread('test_images/tmp.jpg').copy() * 255).astype(np.uint8)
+    image_gray = get_image_gray(image)
+    image = check_empty_img("test_images\\tmp")
+    res = resize_image(image_gray,image)
+    #cv2.imshow("piece",res)
+    return res
 
 
 main()
