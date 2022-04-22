@@ -65,22 +65,32 @@ def convolution_filter(gray_img, kernel):
     return result
 
 
-def main():
-    # image = mpimg.imread('test_images/Bikesgray.jpg')
-
-    image = (mpimg.imread('test_images/20cents.jpg').copy() * 255).astype(np.uint8)
+def load_image(path):
+    image = (mpimg.imread(path).copy() * 255).astype(np.uint8)
     image_rgb = get_image_rgb(image)
     image_gray = get_image_gray(image_rgb)
+    return image_gray
+
+
+def load_image_rgb(path):
+    image = (mpimg.imread(path).copy() * 255).astype(np.uint8)
+    image_rgb = get_image_rgb(image)
+    return image_rgb
+
+
+def main():
+    # image = mpimg.imread('test_images/Bikesgray.jpg')
+    image = load_image('test_images/20cents.jpg')
     # plt.figure()
     # plt.imshow(image_gray, cmap=plt.cm.gray)
 
-    # image_gray = reduce_size(image_gray, 150)
-    # plt.figure()
-    # plt.imshow(image_gray, cmap=plt.cm.gray)
-
-    image = cut_coin_image(image_gray)
+    image = cut_coin_image(image)
     plt.figure()
     plt.imshow(image, cmap=plt.cm.gray)
+
+    image_canny = canny(image)
+    plt.figure()
+    plt.imshow(image_canny, cmap=plt.cm.gray)
 
     plt.show()
 

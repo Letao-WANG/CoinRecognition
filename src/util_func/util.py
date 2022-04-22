@@ -314,8 +314,8 @@ def delete_background(image_gray, image):
 
 
 def canny(img):
-    t_lower = 0.7*np.average(img)  # Lower Threshold
-    t_upper = 1.5*np.average(img)  # Upper threshold
+    t_lower = 0.1*np.average(img)  # Lower Threshold
+    t_upper = 0.6*np.average(img)  # Upper threshold
     edge = cv2.Canny(img, t_lower, t_upper, L2gradient=True)
     return edge
 
@@ -356,7 +356,7 @@ def thresholding(image, threshold):
     return img
 
 
-def cut_coin_image(image_gray, modify_size=200, res_size=150):
+def cut_coin_image(image_gray, modify_size=250, res_size=200):
     """
     Remove redundant background of coins
     :param image_gray: image gris

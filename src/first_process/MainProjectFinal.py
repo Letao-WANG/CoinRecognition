@@ -3,6 +3,8 @@ import numpy as np
 import json
 import math
 import os
+
+from src.util_func.util import cut_coin_image
 from util import *
 import matplotlib.pyplot as plt
 import copy
@@ -15,7 +17,7 @@ warnings.simplefilter("error", np.VisibleDeprecationWarning)
 from PIL import Image,ImageChops
 from skimage.metrics import structural_similarity as ssim
 
-os.chdir("E:\Repository\CoinRecognition\data") 
+os.chdir("data")
 
 ratio = 0.5
 
@@ -548,76 +550,96 @@ def determine_piece2(image):
         print("2 euros")
         return "Piece2euros"
 
+
 # Determine la valeur en fonction du cosine similarity
 def determine_piece(image_gray):
+    coin_names = ["1_ctm", "2_ctms", "5_ctms", "10_ctms", "20_ctms", "50_ctms", "1_euro", "2_euros"]
+    image = cut_coin_image(image_gray)
 
-    IMG_SIZE = (200, 200)
+    images_standard = []
+    for coin in coin_names:
+        image_standard = check_empty_img("test_images\\" + coin)
+        image_standard_gray = get_image_gray(image_standard)
+        image_cut = cut_coin_image(image_standard_gray)
+        images_standard.append(image_cut)
 
-    image = cv2.resize(image_gray, IMG_SIZE)
+    max_cos = 0
+    index = 0
+    for image_standard in images_standard:
+        cos = calculate_cosine_similarity(image_standard, image)
+        if cos > max_cos:
+            max_cos = cos
+        index += 1
 
-    image_1_cent = check_empty_img("test_images\\1_ctm")
-    image_2_cents = check_empty_img("test_images\\2_ctms")
-    image_5_cents = check_empty_img("test_images\\5_ctms")
-    image_10_cents = check_empty_img("test_images\\10_ctms")
-    image_20_cents = check_empty_img("test_images\\20_ctms")
-    image_50_cents = check_empty_img("test_images\\50_ctms")
-    image_1_euro = check_empty_img("test_images\\1_euro")
-    image_2_euros = check_empty_img("test_images\\2_euros")
+    print(coin_names[index])
+    return coin_names[index]
 
-    image_1_cent = cv2.resize(image_1_cent, IMG_SIZE)
-    image_2_cents = cv2.resize(image_2_cents, IMG_SIZE)
-    image_5_cents = cv2.resize(image_5_cents, IMG_SIZE)
-    image_10_cents = cv2.resize(image_10_cents, IMG_SIZE)
-    image_20_cents = cv2.resize(image_20_cents, IMG_SIZE)
-    image_50_cents = cv2.resize(image_50_cents, IMG_SIZE)
-    image_1_euro = cv2.resize( image_1_euro, IMG_SIZE)
-    image_2_euros = cv2.resize(image_2_euros, IMG_SIZE)
+    #
+    # image_1_cent = check_empty_img("test_images\\1_ctm")
+    # image_2_cents = check_empty_img("test_images\\2_ctms")
+    # image_5_cents = check_empty_img("test_images\\5_ctms")
+    # image_10_cents = check_empty_img("test_images\\10_ctms")
+    # image_20_cents = check_empty_img("test_images\\20_ctms")
+    # image_50_cents = check_empty_img("test_images\\50_ctms")
+    # image_1_euro = check_empty_img("test_images\\1_euro")
+    # image_2_euros = check_empty_img("test_images\\2_euros")
+
+    # image_1_cent = cv2.resize(image_1_cent, IMG_SIZE)
+    # image_2_cents = cv2.resize(image_2_cents, IMG_SIZE)
+    # image_5_cents = cv2.resize(image_5_cents, IMG_SIZE)
+    # image_10_cents = cv2.resize(image_10_cents, IMG_SIZE)
+    # image_20_cents = cv2.resize(image_20_cents, IMG_SIZE)
+    # image_50_cents = cv2.resize(image_50_cents, IMG_SIZE)
+    # image_1_euro = cv2.resize( image_1_euro, IMG_SIZE)
+    # image_2_euros = cv2.resize(image_2_euros, IMG_SIZE)
+
+    # image_1_cent = cut_
     
-
-    cos_sim1 = calculate_cosine_similarity(image_1_cent, image)
-
-    cos_sim2 = calculate_cosine_similarity(image_2_cents, image)
-
-    cos_sim3 = calculate_cosine_similarity(image_5_cents, image)
-
-    cos_sim4 = calculate_cosine_similarity(image_10_cents, image)
-
-    cos_sim5 = calculate_cosine_similarity(image_20_cents, image)
-
-    cos_sim6 = calculate_cosine_similarity(image_50_cents, image)
-
-    cos_sim7 = calculate_cosine_similarity(image_1_euro, image)
-
-    cos_sim8 = calculate_cosine_similarity(image_2_euros, image)
-
-    print(str(cos_sim1) +" "+ str(cos_sim2) +" "+ str(cos_sim3) +" "+ str(cos_sim4) +" "+ str(cos_sim5) +" "+ str(cos_sim6) +" "+ str(cos_sim7) +" "+ str(cos_sim8))
-    m = max(cos_sim1,cos_sim2,cos_sim3,cos_sim4,cos_sim5,cos_sim6,cos_sim7,cos_sim8)
-    print(m)
-
-    if(m == cos_sim1):
-        print("1 cent")
-        return "Piece1ctm"
-    if(m == cos_sim2):
-        print("2 cents")
-        return "Piece2ctms"
-    if(m == cos_sim3):
-        print("5 cents")
-        return "Piece5ctms"
-    if(m == cos_sim4):
-        print("10 cents")
-        return "Piece10ctms"
-    if(m == cos_sim5):
-        print("20 cents")
-        return "Piece20ctms"
-    if(m == cos_sim6):
-        print("50 cents")
-        return "Piece50ctms"
-    if(m == cos_sim7):
-        print("1 euro")
-        return "Piece1euro"
-    if(m == cos_sim8):
-        print("2 euros")
-        return "Piece2euros"
+    #
+    # cos_sim1 = calculate_cosine_similarity(image_1_cent, image)
+    #
+    # cos_sim2 = calculate_cosine_similarity(image_2_cents, image)
+    #
+    # cos_sim3 = calculate_cosine_similarity(image_5_cents, image)
+    #
+    # cos_sim4 = calculate_cosine_similarity(image_10_cents, image)
+    #
+    # cos_sim5 = calculate_cosine_similarity(image_20_cents, image)
+    #
+    # cos_sim6 = calculate_cosine_similarity(image_50_cents, image)
+    #
+    # cos_sim7 = calculate_cosine_similarity(image_1_euro, image)
+    #
+    # cos_sim8 = calculate_cosine_similarity(image_2_euros, image)
+    #
+    # print(str(cos_sim1) +" "+ str(cos_sim2) +" "+ str(cos_sim3) +" "+ str(cos_sim4) +" "+ str(cos_sim5) +" "+ str(cos_sim6) +" "+ str(cos_sim7) +" "+ str(cos_sim8))
+    # m = max(cos_sim1,cos_sim2,cos_sim3,cos_sim4,cos_sim5,cos_sim6,cos_sim7,cos_sim8)
+    # print(m)
+    #
+    # if(m == cos_sim1):
+    #     print("1 cent")
+    #     return "Piece1ctm"
+    # if(m == cos_sim2):
+    #     print("2 cents")
+    #     return "Piece2ctms"
+    # if(m == cos_sim3):
+    #     print("5 cents")
+    #     return "Piece5ctms"
+    # if(m == cos_sim4):
+    #     print("10 cents")
+    #     return "Piece10ctms"
+    # if(m == cos_sim5):
+    #     print("20 cents")
+    #     return "Piece20ctms"
+    # if(m == cos_sim6):
+    #     print("50 cents")
+    #     return "Piece50ctms"
+    # if(m == cos_sim7):
+    #     print("1 euro")
+    #     return "Piece1euro"
+    # if(m == cos_sim8):
+    #     print("2 euros")
+    #     return "Piece2euros"
     
 # Determine la valeur de la piece en fonction du hash
 def determine_piece3(image):
