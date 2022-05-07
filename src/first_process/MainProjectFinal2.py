@@ -5,7 +5,7 @@ import math
 import os
 import matplotlib.pyplot as plt
 import copy
-from google.colab.patches import cv2_imshow
+# from google.colab.patches import cv2.imshow
 
 import warnings
 
@@ -570,8 +570,8 @@ def determine_piece(deter_image):
     cpt = 0
     index = 0
     for image_standard in images_standard:
-        cv2_imshow(image_standard)
-        cv2_imshow(image)
+        cv2.imshow(image_standard)
+        cv2.imshow(image)
         cos = calculate_cosine_similarity(image_standard, image)
         print("cosine similarity: " + str(cos))
         if cos > max_cos:
@@ -583,37 +583,37 @@ def determine_piece(deter_image):
     return coin_res[index]
     
 # Determine la valeur de la piece en fonction du hash
-def determine_piece3(image):
-
-    IMG_SIZE = (200, 200)
-
-    image_1_cent = check_empty_img("test_images\\1_ctm")
-    image_2_cents = check_empty_img("test_images\\2_ctms")
-    image_5_cents = check_empty_img("test_images\\5_ctms")
-    image_10_cents = check_empty_img("test_images\\10_ctms")
-    image_20_cents = check_empty_img("test_images\\20_ctms")
-    image_50_cents = check_empty_img("test_images\\50_ctms")
-    image_1_euro = check_empty_img("test_images\\1_euro")
-    image_2_euros = check_empty_img("test_images\\2_euros")
-
-    image_1_cent = cv2.resize(image_1_cent, IMG_SIZE)
-    image_2_cents = cv2.resize(image_2_cents, IMG_SIZE)
-    image_5_cents = cv2.resize(image_5_cents, IMG_SIZE)
-    image_10_cents = cv2.resize(image_10_cents, IMG_SIZE)
-    image_20_cents = cv2.resize(image_20_cents, IMG_SIZE)
-    image_50_cents = cv2.resize(image_50_cents, IMG_SIZE)
-    image_1_euro = cv2.resize( image_1_euro, IMG_SIZE)
-    image_2_euros = cv2.resize(image_2_euros, IMG_SIZE)
-    
-
-    hash0 = imagehash.average_hash(Image.open("1_ctm_bis"))
-    hash1 = imagehash.average_hash(Image.open("test_images\\2_ctms")) 
-    cutoff = 5  # maximum bits that could be different between the hashes. 
-
-    if hash0 - hash1 < cutoff:
-      print('images are similar')
-    else:
-      print('images are not similar')
+# def determine_piece3(image):
+#
+#     IMG_SIZE = (200, 200)
+#
+#     image_1_cent = check_empty_img("test_images\\1_ctm")
+#     image_2_cents = check_empty_img("test_images\\2_ctms")
+#     image_5_cents = check_empty_img("test_images\\5_ctms")
+#     image_10_cents = check_empty_img("test_images\\10_ctms")
+#     image_20_cents = check_empty_img("test_images\\20_ctms")
+#     image_50_cents = check_empty_img("test_images\\50_ctms")
+#     image_1_euro = check_empty_img("test_images\\1_euro")
+#     image_2_euros = check_empty_img("test_images\\2_euros")
+#
+#     image_1_cent = cv2.resize(image_1_cent, IMG_SIZE)
+#     image_2_cents = cv2.resize(image_2_cents, IMG_SIZE)
+#     image_5_cents = cv2.resize(image_5_cents, IMG_SIZE)
+#     image_10_cents = cv2.resize(image_10_cents, IMG_SIZE)
+#     image_20_cents = cv2.resize(image_20_cents, IMG_SIZE)
+#     image_50_cents = cv2.resize(image_50_cents, IMG_SIZE)
+#     image_1_euro = cv2.resize( image_1_euro, IMG_SIZE)
+#     image_2_euros = cv2.resize(image_2_euros, IMG_SIZE)
+#
+#
+#     hash0 = imagehash.average_hash(Image.open("1_ctm_bis"))
+#     hash1 = imagehash.average_hash(Image.open("test_images\\2_ctms"))
+#     cutoff = 5  # maximum bits that could be different between the hashes.
+#
+#     if hash0 - hash1 < cutoff:
+#       print('images are similar')
+#     else:
+#       print('images are not similar')
 
 def get_image_rgb(origin_image):
     """
@@ -1242,7 +1242,7 @@ def main():
                 #else:
                 coin_value_liste[i] = string
                 
-                cv2_imshow(images[i])
+                cv2.imshow(images[i])
                 cv2.waitKey(0) 
                 cv2.destroyAllWindows()
 
@@ -1340,14 +1340,14 @@ def compare(original,image_to_compare):
     print("GOOD Matches:", len(good_points))
     print("How good it's the match: ", len(good_points) / number_keypoints * 100, "%")
 
-def test4():
-
-    image = (mpimg.imread('test_images/tmp.jpg').copy() * 255).astype(np.uint8)
-    image_gray = get_image_gray(image)
-    image = check_empty_img("test_images\\tmp")
-    res = resize_image(image_gray,image)
-    #cv2.imshow("piece",res)
-    return res
+# def test4():
+#
+#     image = (mpimg.imread('test_images/tmp.jpg').copy() * 255).astype(np.uint8)
+#     image_gray = get_image_gray(image)
+#     image = check_empty_img("test_images\\tmp")
+#     res = resize_image(image_gray,image)
+#     #cv2.imshow("piece",res)
+#     return res
 
 
 main()

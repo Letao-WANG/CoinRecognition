@@ -13,6 +13,12 @@ def filter_sobel_x():
                      [-1, 0, 1]])
 
 
+def filter_prewitt_x():
+    return np.array([[-1, 0, 1],
+                     [-1, 0, 1],
+                     [-1, 0, 1]])
+
+
 def filter_sobel_y():
     return np.array([[1, 2, 1],
                      [0, 0, 0],
@@ -78,7 +84,7 @@ def ahash(image_gray):
 
 def main():
     # image = (mpimg.imread('test_images/20cents.jpg').copy() * 255).astype(np.uint8)
-    image = mpimg.imread('test_images/Bikesgray.jpg')
+    image0 = mpimg.imread('test_images/Bikesgray.jpg')
     # image = (mpimg.imread('test_images/1_2.png').copy() * 255).astype(np.uint8)
     # image = get_image_rgb(image)
     # image = get_image_gray(image)
@@ -93,18 +99,25 @@ def main():
     # image_gray = get_image_gray(image)
     # image = resize(image, (100, 100))
     # res = equalization(image)
-    image = convolution_sobel(image)
+    # image = convolution_sobel(image0)
+    image = convolution_filter(image0, filter_sobel_x())
+    image2 = convolution_filter(image0, filter_prewitt_x())
     # res = ahash(image)
     # res = convolution_sobel(res)
     # print(res)
     # res = otsu(res)
     # res = equalization(res)
     # plt.imshow(res, cmap=plt.cm.gray, vmin=0, vmax=255)
+    plt.figure()
     plt.imshow(image, cmap=plt.cm.gray)
     plt.show()
 
+    plt.figure()
+    plt.imshow(image2, cmap=plt.cm.gray)
+    plt.show()
 
-# main()
+
+main()
 
 
 def canny(image):
@@ -233,7 +246,8 @@ def test4():
     plt.figure()
     plt.imshow(res, cmap=plt.cm.gray)
     plt.show()
+    plt.show()
 
-test4()
+# test4()
 
 
